@@ -180,14 +180,14 @@ class AESApp:
             try:
                 if self.action_var.get() == "encrypt":
                     encrypted_file_path = AESHandler.encrypt_file(self.key, file_path)
-                    self.show_tick_image()  # Başarı görselini göster
+                   # self.show_tick_image()  # Başarı görselini göster
                     messagebox.showinfo("Başarılı", f"Dosya başarıyla şifrelendi: {encrypted_file_path}")
                 elif self.action_var.get() == "decrypt":
                     if not file_path.endswith(".enc"):
                         messagebox.showerror("Hata", ".enc uzantılı bir dosya seçmelisiniz.")
                         return
                     decrypted_file_path = AESHandler.decrypt_file(self.key, file_path)
-                    self.show_tick_image()  # Başarı görselini göster
+                  #  self.show_tick_image()  # Başarı görselini göster
                     messagebox.showinfo("Başarılı", f"Dosya başarıyla çözüldü: {decrypted_file_path}")
             except Exception as e:
                 messagebox.showerror("Hata", f"İşlem sırasında hata oluştu: {str(e)}")
@@ -198,23 +198,24 @@ class AESApp:
         back_btn = ctk.CTkButton(self.image_frame, text="Geri Dön", command=self.setup_main_frame)
         back_btn.pack(pady=20)
 
-    def show_tick_image(self):
+    #Build'den sonra çalışmadığı için devre dışı bıraktık -Yusuf
+    """ def show_tick_image(self):
         for widget in self.image_frame.winfo_children():
             if isinstance(widget, ctk.CTkLabel) and hasattr(widget, "is_tick_image"):
                 widget.destroy()
         try:
             tick_image = PhotoImage(file="ticklogo.png")
-            tick_image = tick_image.subsample(6,6)
+            tick_image = tick_image.subsample(20,20)
             tick_label = ctk.CTkLabel(self.image_frame, image=tick_image, text="")
             tick_label.image = tick_image  # Referansı tutmak için
             tick_label.is_tick_image = True  # Diğer widget'larla karışmasını önlemek için işaret ekle
             tick_label.pack(pady=10)  # Drag-and-drop alanının altında göstermek için
         except Exception as e:
             messagebox.showerror("Hata", f"Görsel yüklenemedi: {str(e)}")
+    """
 
+    #Toplu Dosya İşlemen için
     def batch_process_files(self, files, operation):
-        """Batch processing fonksiyonu birden fazla dosyayı belirtilen işlemle işler."""
-        """Batch processing fonksiyonu"""
         if not self.key:
             messagebox.showerror("Hata", "Lütfen önce bir anahtar oluşturun veya içe aktarın.")
             return
@@ -227,7 +228,6 @@ class AESApp:
         progress_bar = ttk.Progressbar(progress_window, orient="horizontal", mode="determinate", length=300)
         progress_bar.pack(pady=10)
 
-        # İşlemi arka planda başlat
         def process():
             try:
                 progress_bar["maximum"] = len(files)
@@ -239,22 +239,22 @@ class AESApp:
                             messagebox.showerror("Hata", ".enc uzantılı bir dosya seçmelisiniz.")
                             continue
                         AESHandler.decrypt_file(self.key, file_path)
-                    progress_bar["value"] = i + 1  # İlerleme çubuğunu güncelle
-                    progress_window.update_idletasks()  # Arayüzü yenile
+                    progress_bar["value"] = i + 1  # İlerleme çubuğunu güncelleme
+                    progress_window.update_idletasks()  # Arayüzü yenile komutu
 
-                    delete_originals = messagebox.askyesno(
-                        "Dosyaları Sil",
-                        "Dosyalar başarıyla işlendi. Orijinal dosyaları silmek ister misiniz?"
-                    )
-                    if delete_originals:
-                        for file_path in files:
-                            try:
-                                os.remove(file_path)  # Dosyayı sil
-                            except Exception as e:
-                                messagebox.showerror("Hata", f"Dosya silinirken bir hata oluştu: {str(e)}")
-                        messagebox.showinfo("Bilgi", "Orijinal dosyalar başarıyla silindi.")
-                    else:
-                        messagebox.showinfo("Bilgi", "Orijinal dosyalar korunmuştur.")
+                delete_originals = messagebox.askyesno(
+                    "Dosyaları Sil",
+                    "Dosyalar başarıyla işlendi. Orijinal dosyaları silmek ister misiniz?"
+                )
+                if delete_originals:
+                    for file_path in files:
+                        try:
+                            os.remove(file_path)  # Dosyayı sil
+                        except Exception as e:
+                            messagebox.showerror("Hata", f"Dosya silinirken bir hata oluştu: {str(e)}")
+                    messagebox.showinfo("Bilgi", "Orijinal dosyalar başarıyla silindi.")
+                else:
+                    messagebox.showinfo("Bilgi", "Orijinal dosyalar korunmuştur.")
 
                 progress_label.configure(text="İşlem tamamlandı!")
                 messagebox.showinfo("Başarılı", "Tüm dosyalar başarıyla işlendi!")
@@ -267,12 +267,11 @@ class AESApp:
         threading.Thread(target=process).start()
 
     def open_batch_processing(self):
-        """Batch processing için dosyaları seçtir ve işlem başlat"""
         files = filedialog.askopenfilenames(title="Dosyaları Seçin", filetypes=[("Tüm Dosyalar (*.*)", "*.*"), ("Şifreli Dosyalar (*.enc)", "*.enc")])
         if not files:
             return
 
-        operation = self.action_var.get().lower()  # İşlem zemini normalize etmek
+        operation = self.action_var.get().lower()  #normalize
         if operation not in ["encrypt", "decrypt"]:
             messagebox.showerror("Hata", "Geçersiz işlem seçimi.")
             return

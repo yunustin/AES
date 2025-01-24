@@ -6,6 +6,8 @@ Just put hook-tkinterdnd2.py in the same directory where you call pyinstaller an
     pyinstaller myproject/myproject.py --additional-hooks-dir=.
 """
 
+#HOOK DOSYASI, DND KÜTÜPHANESİ İÇİN, TERMİNALDE BUILD ALIRKEN --additional-hooks-dir=. EKLEYIN -YUSUF
+
 import os
 import platform
 from PyInstaller.utils.hooks import collect_data_files, collect_dynamic_libs
